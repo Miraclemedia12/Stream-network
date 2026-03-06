@@ -2,62 +2,127 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stream | Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream | Secure Admin Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #0a0a0a; color: white; font-family: sans-serif; }
-        .input-group label { display: block; font-size: 10px; font-weight: bold; color: #555; text-transform: uppercase; margin-bottom: 4px; margin-left: 4px; }
-        input { background: #161b22 !important; border: 1px solid #333 !important; color: white !important; width: 100%; padding: 14px; border-radius: 10px; margin-bottom: 20px; outline: none; }
-        input:focus { border-color: #ccff00 !important; }
-        .btn-neon { background: #ccff00; color: #000; font-weight: 900; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background: #050505; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+        .glass-panel { background: rgba(17, 17, 17, 0.8); backdrop-filter: blur(10px); border: 1px solid #222; border-radius: 24px; }
+        .neon-border:focus-within { border-color: #ccff00; box-shadow: 0 0 15px rgba(204, 255, 0, 0.1); }
+        input { background: transparent !important; outline: none; width: 100%; color: white; }
+        .btn-primary { background: #ccff00; color: #000; transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(204, 255, 0, 0.2); }
+        .btn-primary:disabled { opacity: 0.5; transform: none; }
     </style>
 </head>
-<body class="p-6 flex flex-col items-center">
-    <!-- Simple Login -->
-    <div id="login-form" class="mt-20 w-full max-w-xs text-center">
-        <h1 class="text-2xl font-black mb-8 text-lime-400 tracking-tighter">STREAM ADMIN</h1>
-        <input type="password" id="admin-pass" placeholder="Access Password">
-        <button onclick="handleLogin()" class="w-full btn-neon py-4 rounded-xl uppercase tracking-widest">Login</button>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- LOGIN INTERFACE -->
+    <div id="login-screen" class="w-full max-w-sm">
+        <div class="text-center mb-10">
+            <div class="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-shield-halved text-2xl text-lime-400"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold tracking-tight">Admin Terminal</h1>
+            <p class="text-gray-500 text-sm mt-1">Authorized Personnel Only</p>
+        </div>
+
+        <div class="glass-panel p-8 shadow-2xl">
+            <div class="mb-5">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Username</label>
+                <div class="flex items-center gap-3 border border-white/10 rounded-xl px-4 py-3.5 mt-1 neon-border bg-white/5">
+                    <i class="fas fa-user text-gray-600 text-sm"></i>
+                    <input type="text" id="user-id" placeholder="admin" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Password</label>
+                <div class="flex items-center gap-3 border border-white/10 rounded-xl px-4 py-3.5 mt-1 neon-border bg-white/5">
+                    <i class="fas fa-lock text-gray-600 text-sm"></i>
+                    <input type="password" id="user-pass" placeholder="••••••••">
+                </div>
+            </div>
+
+            <button onclick="attemptLogin()" class="w-full btn-primary py-4 rounded-xl font-bold uppercase tracking-tighter text-sm">
+                Authenticate Session
+            </button>
+        </div>
     </div>
 
-    <!-- Manager UI -->
-    <div id="admin-dash" class="hidden w-full max-w-md">
-        <header class="mb-8 flex justify-between items-center">
-            <h1 class="text-xl font-black text-lime-400">DATABASE CONTROL</h1>
-            <button onclick="location.reload()" class="text-xs text-red-500 font-bold uppercase">Exit</button>
-        </header>
-
-        <div class="bg-[#111] p-6 rounded-2xl border border-[#222] shadow-2xl">
-            <div class="input-group">
-                <label>Bank Account Number</label>
-                <input type="text" id="db-acc" placeholder="8052839670">
+    <!-- MAIN DASHBOARD -->
+    <div id="main-dash" class="hidden w-full max-w-2xl">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-black text-white">System Config</h1>
+                <p class="text-xs text-lime-400 font-bold uppercase tracking-widest">Live Database Connection Active</p>
             </div>
-            <div class="input-group">
-                <label>Bank Institution Name</label>
-                <input type="text" id="db-bank" placeholder="Moniepoint">
-            </div>
-            <div class="input-group">
-                <label>Account Holder Name</label>
-                <input type="text" id="db-name" placeholder="V Media">
-            </div>
-            <div class="input-group">
-                <label>Subscription Amount (e.g. 12,000)</label>
-                <input type="text" id="db-amt" placeholder="12,000">
-            </div>
-            <div class="input-group">
-                <label>Redirect URL (Support Link)</label>
-                <input type="text" id="db-link" placeholder="https://t.me/...">
-            </div>
-
-            <button id="save-btn" onclick="saveData()" class="w-full btn-neon py-5 rounded-xl uppercase tracking-widest shadow-lg shadow-lime-500/10">
-                Update Live Details
+            <button onclick="location.reload()" class="h-10 w-10 bg-white/5 border border-white/10 rounded-full flex items-center justify-center hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-500 transition-all">
+                <i class="fas fa-power-off"></i>
             </button>
-            <p id="status" class="text-center text-xs mt-6 font-bold uppercase"></p>
         </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Left Side Inputs -->
+            <div class="glass-panel p-6 space-y-5">
+                <h3 class="text-xs font-bold text-gray-400 uppercase border-b border-white/5 pb-3">Payment Information</h3>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Account Number</label>
+                    <div class="border border-white/10 rounded-lg px-3 py-2.5 mt-1 bg-white/5 focus-within:border-lime-500/50 transition-all">
+                        <input type="text" id="db-acc" class="text-sm font-semibold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Bank Name</label>
+                    <div class="border border-white/10 rounded-lg px-3 py-2.5 mt-1 bg-white/5 focus-within:border-lime-500/50 transition-all">
+                        <input type="text" id="db-bank" class="text-sm font-semibold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Account Holder Name</label>
+                    <div class="border border-white/10 rounded-lg px-3 py-2.5 mt-1 bg-white/5 focus-within:border-lime-500/50 transition-all">
+                        <input type="text" id="db-name" class="text-sm font-semibold">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side Inputs -->
+            <div class="glass-panel p-6 space-y-5">
+                <h3 class="text-xs font-bold text-gray-400 uppercase border-b border-white/5 pb-3">Gateway & Pricing</h3>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Pricing (₦)</label>
+                    <div class="border border-white/10 rounded-lg px-3 py-2.5 mt-1 bg-white/5 focus-within:border-lime-500/50 transition-all">
+                        <input type="text" id="db-amt" class="text-sm font-semibold text-lime-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Redirect URL</label>
+                    <div class="border border-white/10 rounded-lg px-3 py-2.5 mt-1 bg-white/5 focus-within:border-lime-500/50 transition-all">
+                        <input type="text" id="db-link" class="text-sm font-semibold">
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button id="update-btn" onclick="commitChanges()" class="w-full btn-primary py-4 rounded-xl font-bold uppercase text-xs">
+                        <i class="fas fa-cloud-arrow-up mr-2"></i> Commit Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <p id="feedback" class="text-center mt-6 text-xs font-bold uppercase transition-all opacity-0"></p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
@@ -74,33 +139,39 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        getAnalytics(app);
 
-        window.handleLogin = async () => {
-            if(document.getElementById('admin-pass').value === "stream2026") {
-                document.getElementById('login-form').classList.add('hidden');
-                document.getElementById('admin-dash').classList.remove('hidden');
+        window.attemptLogin = async () => {
+            const user = document.getElementById('user-id').value;
+            const pass = document.getElementById('user-pass').value;
+
+            if(user === "admin" && pass === "stream2026") {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-dash').classList.remove('hidden');
                 
-                // Authorize for write access
-                await signInAnonymously(auth);
-                
-                // Pre-load current data
-                const s = await getDoc(doc(db, 'settings', 'live_details'));
-                if(s.exists()){
-                    const d = s.data();
-                    document.getElementById('db-acc').value = d.accNum || "";
-                    document.getElementById('db-bank').value = d.bank || "";
-                    document.getElementById('db-name').value = d.name || "";
-                    document.getElementById('db-amt').value = d.amount || "";
-                    document.getElementById('db-link').value = d.link || "";
+                try {
+                    await signInAnonymously(auth);
+                    const snap = await getDoc(doc(db, 'settings', 'live_details'));
+                    if(snap.exists()){
+                        const data = snap.data();
+                        document.getElementById('db-acc').value = data.accNum || "";
+                        document.getElementById('db-bank').value = data.bank || "";
+                        document.getElementById('db-name').value = data.name || "";
+                        document.getElementById('db-amt').value = data.amount || "";
+                        document.getElementById('db-link').value = data.link || "";
+                    }
+                } catch (e) {
+                    showFeedback("Auth Error: Check Firebase Rules", false);
                 }
-            } else { alert("Access Denied"); }
+            } else {
+                alert("Invalid Credentials");
+            }
         };
 
-        window.saveData = async () => {
-            const btn = document.getElementById('save-btn');
-            const st = document.getElementById('status');
-            btn.innerText = "CONNECTING...";
+        window.commitChanges = async () => {
+            const btn = document.getElementById('update-btn');
             btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
 
             try {
                 await setDoc(doc(db, 'settings', 'live_details'), {
@@ -111,17 +182,22 @@
                     link: document.getElementById('db-link').value,
                     updatedAt: new Date().toISOString()
                 });
-                st.innerText = "SUCCESS: DATABASE UPDATED";
-                st.className = "text-center text-xs mt-6 font-bold uppercase text-green-500";
+                showFeedback("Database Updated Successfully", true);
             } catch (e) {
-                st.innerText = "ERROR: " + e.message;
-                st.className = "text-center text-xs mt-6 font-bold uppercase text-red-500";
-                console.error(e);
+                showFeedback("Write Permission Denied", false);
             } finally {
-                btn.innerText = "Update Live Details";
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-cloud-arrow-up mr-2"></i> Commit Changes';
             }
         };
+
+        function showFeedback(msg, success) {
+            const f = document.getElementById('feedback');
+            f.innerText = msg;
+            f.className = `text-center mt-6 text-xs font-bold uppercase transition-all ${success ? 'text-lime-400' : 'text-red-500'}`;
+            f.style.opacity = "1";
+            setTimeout(() => f.style.opacity = "0", 3000);
+        }
     </script>
 </body>
 </html>
