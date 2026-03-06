@@ -1,3 +1,7 @@
+dy>
+</html>
+
+  
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,16 +44,18 @@
                 <i class="fas fa-lock text-2xl"></i>
             </div>
             <h1 class="text-2xl font-black mb-6">Admin Access</h1>
-            <input type="text" id="admin-user" placeholder="Username" class="w-full p-3 rounded-lg mb-4 text-sm">
-            <input type="password" id="admin-pass" placeholder="Password" class="w-full p-3 rounded-lg mb-6 text-sm">
-            <button onclick="checkLogin()" class="w-full bg-neon py-3 rounded-lg font-bold uppercase tracking-widest active:scale-95 transition-transform">
-                Login
-            </button>
+            <form id="loginForm" onsubmit="return false;">
+                <input type="text" id="admin-user" placeholder="Username" class="w-full p-3 rounded-lg mb-4 text-sm">
+                <input type="password" id="admin-pass" placeholder="Password" class="w-full p-3 rounded-lg mb-6 text-sm">
+                <button type="button" onclick="checkLogin()" class="w-full bg-neon py-3 rounded-lg font-bold uppercase tracking-widest active:scale-95 transition-transform">
+                    Login
+                </button>
+            </form>
             <p id="login-error" class="text-red-500 text-xs mt-4 hidden">Invalid credentials. Try again.</p>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD (HIDDEN UNTIL LOGIN) -->
+    <!-- MAIN DASHBOARD -->
     <div id="dashboard" class="hidden w-full max-w-2xl mt-4">
         <header class="flex justify-between items-center mb-8">
             <div>
@@ -100,10 +106,6 @@
             </button>
             <p id="status-msg" class="text-center text-xs font-bold uppercase tracking-widest hidden"></p>
         </div>
-
-        <div class="mt-8 text-center text-[10px] text-gray-600 font-bold uppercase tracking-widest">
-            Stream Admin Portal v2.0
-        </div>
     </div>
 
     <script type="module">
@@ -111,23 +113,40 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CONFIG
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // Global instances
+        let db, auth, appId;
+        let firebaseReady = false;
+
+        try {
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            firebaseReady = true;
+
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            };
+            initAuth();
+        } catch (e) {
+            console.warn("Firebase config missing. Running in local UI mode.");
+        }
 
         // LOGIN SYSTEM
         window.checkLogin = () => {
             const user = document.getElementById('admin-user').value;
             const pass = document.getElementById('admin-pass').value;
             
-            // LOGINS DETAILS
+            // LOGINS DETAILS (Username: admin | Pass: stream2026)
             if (user === "admin" && pass === "stream2026") {
                 document.getElementById('login-overlay').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-                loadCurrentData();
+                if(firebaseReady) loadCurrentData();
             } else {
                 const err = document.getElementById('login-error');
                 err.classList.remove('hidden');
@@ -135,20 +154,10 @@
             }
         };
 
-        // AUTH INITIALIZATION
-        const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-        };
-        initAuth();
-
-        // LOAD DATA
+        // LOAD DATA FROM FIREBASE
         async function loadCurrentData() {
             onAuthStateChanged(auth, async (user) => {
-                if (user) {
+                if (user && firebaseReady) {
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'paymentSettings');
                     const snap = await getDoc(docRef);
                     if (snap.exists()) {
@@ -163,9 +172,12 @@
             });
         }
 
-        // UPDATE DATA
+        // UPDATE DATA IN FIREBASE
         window.updateSettings = async () => {
-            if (!auth.currentUser) return;
+            if (!firebaseReady) {
+                alert("Database not connected. Please check your Firebase configuration.");
+                return;
+            }
             
             const btn = document.getElementById('update-btn');
             const status = document.getElementById('status-msg');
@@ -186,7 +198,8 @@
                 status.className = "text-center text-xs font-bold uppercase tracking-widest text-green-500 mt-4";
                 status.classList.remove('hidden');
             } catch (e) {
-                status.innerText = "Error updating database";
+                console.error(e);
+                status.innerText = "Error: Permission Denied or Connection Lost";
                 status.className = "text-center text-xs font-bold uppercase tracking-widest text-red-500 mt-4";
                 status.classList.remove('hidden');
             } finally {
@@ -199,4 +212,3 @@
 </body>
 </html>
 
-  
