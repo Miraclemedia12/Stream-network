@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -15,7 +16,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
 body{
-background: linear-gradient(180deg,#bfa34b 0%,#8e742a 100%);
+background:linear-gradient(180deg,#bfa34b 0%,#8e742a 100%);
 font-family:'Inter',sans-serif;
 color:white;
 min-height:100vh;
@@ -24,141 +25,218 @@ padding:20px;
 }
 
 /* container */
+
 .reg-container{
 max-width:380px;
 margin:auto;
 }
 
-/* video frame */
+/* video container */
+
 .video-frame{
+
 position:relative;
+
 border-radius:25px;
+
 overflow:hidden;
+
 border:3px solid rgba(191,163,75,0.5);
+
 box-shadow:0 20px 40px rgba(0,0,0,0.4);
+
 margin-bottom:25px;
+
 background:black;
-aspect-ratio:16/9;
+
 }
 
-/* video full display */
+/* video display normal */
+
 .video-frame video{
+
 width:100%;
-height:100%;
-object-fit:contain;
+
+height:auto;
+
+display:block;
+
 }
 
 /* unmute button */
+
 .unmute-btn{
+
 position:absolute;
+
 bottom:12px;
+
 right:12px;
+
 background:rgba(0,0,0,0.6);
-backdrop-filter:blur(8px);
-padding:7px 12px;
+
+padding:8px 14px;
+
 border-radius:50px;
+
 border:1px solid rgba(255,255,255,0.2);
-font-size:10px;
+
+font-size:11px;
+
 font-weight:800;
+
 display:flex;
+
 align-items:center;
-gap:5px;
+
+gap:6px;
+
 cursor:pointer;
+
 }
 
-/* form labels */
+/* title */
+
+.title{
+
+font-size:28px;
+
+font-weight:900;
+
+text-align:center;
+
+margin-bottom:25px;
+
+}
+
+/* form label */
+
 .form-label{
+
 display:block;
-font-size:10px;
-font-weight:800;
-text-transform:uppercase;
-letter-spacing:1px;
+
+font-size:12px;
+
 margin-bottom:6px;
+
 }
 
 /* inputs */
-.input-box{
-width:100%;
-background:rgba(255,255,255,0.12);
-border:1px solid rgba(255,255,255,0.2);
-border-radius:12px;
-padding:12px;
-color:white;
-font-size:14px;
-margin-bottom:14px;
-outline:none;
-}
 
-/* focus */
-.input-box:focus{
-border-color:#ccff00;
+.input-box{
+
+width:100%;
+
+background:rgba(0,0,0,0.25);
+
+border:1px solid rgba(255,255,255,0.2);
+
+border-radius:14px;
+
+padding:14px;
+
+color:white;
+
+font-size:14px;
+
+margin-bottom:16px;
+
+outline:none;
+
 }
 
 /* button */
+
 .submit-btn{
+
 width:100%;
-background:#ccff00;
+
+background:linear-gradient(90deg,#ffd000,#ff9f00);
+
 color:black;
+
 font-weight:900;
-font-size:15px;
-padding:14px;
-border-radius:14px;
-text-transform:uppercase;
+
+font-size:16px;
+
+padding:16px;
+
+border-radius:20px;
+
 cursor:pointer;
-box-shadow:0 10px 25px rgba(0,0,0,0.25);
+
+margin-top:10px;
+
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="reg-container">
 
-<!-- LOGO -->
+<!-- logo -->
+
 <div class="flex justify-center mb-6">
+
 <img src="logo.png" class="h-8">
+
 </div>
 
-<!-- VIDEO -->
+<!-- video -->
+
 <div class="video-frame">
 
 <video id="streamVideo" autoplay muted loop playsinline>
+
 <source src="video2.mp4" type="video/mp4">
+
 </video>
 
 <button onclick="handleAudio()" class="unmute-btn">
+
 <i id="volIcon" class="fa-solid fa-volume-xmark"></i>
-<span id="btnText">UNMUTE</span>
+
+<span id="btnText">Unmute</span>
+
 </button>
 
 </div>
 
-<!-- TITLE -->
-<h2 class="text-xl font-black text-center mb-6 italic">
-Create Stream Account
-</h2>
+<!-- title -->
 
-<!-- FORM -->
+<h2 class="title">Create Stream Account</h2>
+
+<!-- form -->
+
 <form id="registrationForm">
 
 <label class="form-label">Full Name</label>
-<input type="text" id="fullName" placeholder="Your full name" class="input-box" required>
+
+<input type="text" id="fullName" placeholder="Enter your full name" class="input-box" required>
 
 <label class="form-label">Username</label>
-<input type="text" id="userName" placeholder="Unique username" class="input-box" required>
+
+<input type="text" id="userName" placeholder="Choose a username" class="input-box" required>
 
 <label class="form-label">Email Address</label>
-<input type="email" id="email" placeholder="example@gmail.com" class="input-box" required>
+
+<input type="email" id="email" placeholder="you@example.com" class="input-box" required>
 
 <label class="form-label">Phone Number</label>
-<input type="tel" id="phone" placeholder="080 0000 0000" class="input-box" required>
+
+<input type="tel" id="phone" placeholder="Enter your phone number" class="input-box" required>
 
 <label class="form-label">Password</label>
-<input type="password" id="password" placeholder="Min. 8 characters" class="input-box" required>
+
+<input type="password" id="password" placeholder="Create a strong password" class="input-box" required>
 
 <button type="submit" class="submit-btn">
+
 Register & Proceed
+
 </button>
 
 </form>
@@ -167,32 +245,36 @@ Register & Proceed
 
 <script>
 
-/* audio button */
 function handleAudio(){
 
 const video=document.getElementById("streamVideo")
+
 const icon=document.getElementById("volIcon")
+
 const text=document.getElementById("btnText")
 
 if(video.muted){
 
 video.muted=false
+
 icon.className="fa-solid fa-volume-high"
-text.innerText="MUTE"
+
+text.innerText="Mute"
 
 }else{
 
 video.muted=true
+
 icon.className="fa-solid fa-volume-xmark"
-text.innerText="UNMUTE"
+
+text.innerText="Unmute"
 
 }
 
 }
-
-/* registration redirect */
 
 document.getElementById("registrationForm")
+
 .addEventListener("submit",function(e){
 
 e.preventDefault()
@@ -200,7 +282,9 @@ e.preventDefault()
 const userData={
 
 name:document.getElementById("fullName").value,
+
 email:document.getElementById("email").value,
+
 username:document.getElementById("userName").value
 
 }
