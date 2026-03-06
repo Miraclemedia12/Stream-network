@@ -11,35 +11,22 @@
         body { background-color: #0d1117; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .neon-yellow { color: #ccff00; }
         .bg-neon { background-color: #ccff00; color: #000; }
-        .input-box { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .input-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .audio-player { background: #1c2128; border: 1px solid #ccff0044; border-radius: 12px; padding: 15px; }
         
-        /* Activity Popup Animation */
-        #activity-popup {
-            position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(22, 27, 34, 0.95);
-            border: 1px solid #30363d;
-            border-left: 4px solid #ccff00;
-            padding: 12px 20px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 320px;
-            transition: all 0.5s ease;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        #notif-box {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: #161b22; border-left: 4px solid #ccff00; padding: 12px;
+            border-radius: 12px; width: 90%; max-width: 320px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            z-index: 999; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
-        #activity-popup.show { bottom: 20px; }
+        #notif-box.show { bottom: 20px; }
     </style>
 </head>
 <body class="p-4 flex flex-col items-center min-h-screen">
 
-    <div class="w-full max-w-md mt-8 text-center">
+    <div class="w-full max-w-md mt-6 text-center">
+        <!-- Brand Icon -->
         <div class="inline-flex items-center justify-center w-20 h-20 rounded-full border-4 border-neon-yellow mb-6">
             <i class="fas fa-dollar-sign text-4xl neon-yellow"></i>
         </div>
@@ -51,64 +38,67 @@
             <i class="fas fa-exclamation-triangle"></i> NOTE: DO NOT PAY WITH OPAY
         </p>
 
-        <div class="audio-player mb-8">
-            <p class="text-[10px] neon-yellow font-bold uppercase mb-2 flex items-center justify-center gap-2">
-                <i class="fas fa-volume-up"></i> Listen: How it works
+        <!-- Instruction Player -->
+        <div class="audio-player mb-8 text-left">
+            <p class="text-[10px] neon-yellow font-bold uppercase mb-2 flex items-center gap-2">
+                <i class="fas fa-volume-up"></i> LISTEN: HOW IT WORKS
             </p>
             <audio controls class="w-full h-8">
                 <source src="instruction.mp3" type="audio/mpeg">
             </audio>
         </div>
 
-        <div class="space-y-3 text-left">
-            <div class="text-xs text-gray-500 ml-1 mb-1">Account Number</div>
+        <!-- Payment Details -->
+        <div class="space-y-1 text-left">
+            <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Account Number</label>
             <div class="input-box">
                 <span id="acc-num" class="text-xl font-black tracking-widest">Loading...</span>
-                <button onclick="copyText('acc-num')"><i class="far fa-copy text-lg text-gray-500 hover:text-white"></i></button>
+                <button onclick="copyData('acc-num')"><i class="far fa-copy text-gray-500 text-lg"></i></button>
             </div>
 
-            <div class="text-xs text-gray-500 ml-1 mb-1">Bank Name</div>
+            <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Bank Name</label>
             <div class="input-box">
                 <span id="bank-name" class="font-bold">Loading...</span>
-                <button onclick="copyText('bank-name')"><i class="far fa-copy text-gray-500 hover:text-white"></i></button>
+                <button onclick="copyData('bank-name')"><i class="far fa-copy text-gray-500"></i></button>
             </div>
 
-            <div class="text-xs text-gray-500 ml-1 mb-1">Account Name</div>
+            <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Account Name</label>
             <div class="input-box">
-                <span id="acc-name" class="font-bold">Loading...</span>
-                <button onclick="copyText('acc-name')"><i class="far fa-copy text-gray-500 hover:text-white"></i></button>
+                <span id="acc-name" class="font-bold text-sm">Loading...</span>
+                <button onclick="copyData('acc-name')"><i class="far fa-copy text-gray-500"></i></button>
             </div>
 
-            <div class="text-xs text-gray-500 ml-1 mb-1">Amount to Pay</div>
+            <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Amount to Pay</label>
             <div class="input-box border-2 border-neon-yellow/50">
                 <span id="amount" class="text-2xl font-black neon-yellow">Loading...</span>
-                <button onclick="copyText('amount')"><i class="far fa-copy neon-yellow"></i></button>
+                <button onclick="copyData('amount')"><i class="far fa-copy neon-yellow"></i></button>
             </div>
         </div>
 
-        <div class="mt-8 bg-yellow-900/20 p-4 rounded-xl border border-yellow-700/30">
-            <p class="text-yellow-600 text-xs font-bold uppercase mb-1">Payment details expire in:</p>
+        <!-- Expiry Timer -->
+        <div class="mt-8 bg-yellow-900/10 p-4 rounded-xl border border-yellow-700/20">
+            <p class="text-yellow-600 text-[10px] font-bold uppercase">Details expire in:</p>
             <div id="timer" class="text-2xl font-black neon-yellow">30:00</div>
         </div>
 
-        <button onclick="handlePaid()" class="w-full bg-neon mt-8 py-5 rounded-xl font-black flex items-center justify-center gap-3 text-lg uppercase shadow-xl shadow-lime-500/20">
+        <!-- Confirm Button -->
+        <button onclick="confirmPayment()" class="w-full bg-neon mt-8 py-5 rounded-xl font-black flex items-center justify-center gap-3 text-lg uppercase shadow-xl shadow-lime-500/20 active:scale-95 transition-transform">
             <i class="fas fa-check-circle"></i> I Have Paid
         </button>
 
-        <footer class="mt-12 pb-8 flex justify-center items-center gap-2 text-gray-500 text-sm">
-            <i class="fab fa-whatsapp text-xl"></i>
-            <span class="font-bold">Join our Channel</span>
+        <footer class="mt-12 pb-8 text-gray-500 text-sm flex items-center justify-center gap-2">
+            <i class="fab fa-whatsapp"></i> <span class="font-bold">Join our Channel</span>
         </footer>
     </div>
 
-    <!-- Activity Notification Popup -->
-    <div id="activity-popup">
+    <!-- Live Activity Popup -->
+    <div id="notif-box">
         <div class="w-10 h-10 rounded-full bg-neon flex items-center justify-center text-black flex-shrink-0">
-            <i id="popup-icon" class="fas fa-user-plus"></i>
+            <i id="notif-icon" class="fas fa-user-check"></i>
         </div>
         <div class="flex-grow">
-            <p id="popup-text" class="text-xs leading-tight font-medium text-gray-200">Loading activity...</p>
-            <p class="text-[9px] text-gray-500 font-bold uppercase mt-1">Just Now</p>
+            <p id="notif-text" class="text-[11px] text-gray-200 leading-tight">...</p>
+            <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase">JUST NOW</p>
         </div>
     </div>
 
@@ -117,7 +107,6 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Your exact Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCkgorFG60krBLmsTVwQYstWCcskaQseBo",
             authDomain: "stream-network-e020d.firebaseapp.com",
@@ -133,61 +122,64 @@
         const db = getFirestore(app);
         let redirect = "https://t.me/stream_support";
 
-        // Anonymous login and data sync
-        signInAnonymously(auth).then(() => {
-            onSnapshot(doc(db, 'settings', 'payment'), (s) => {
-                if(s.exists()){
-                    const d = s.data();
-                    document.getElementById('acc-num').innerText = d.accNum || "8052839670";
-                    document.getElementById('bank-name').innerText = d.bank || "Moniepoint MFB";
-                    document.getElementById('acc-name').innerText = d.name || "V Media";
-                    document.getElementById('amount').innerText = d.amount ? `₦${d.amount}` : "₦12,000";
-                    redirect = d.link || redirect;
-                }
-            });
-        });
-
-        // Activity Popup Logic
-        const users = ["Musa A.", "Chidi O.", "Abiola S.", "Ibrahim K.", "Emeka J.", "Tunde L.", "Precious E.", "Blessing U.", "Daniel F.", "Victory G."];
-        const popup = document.getElementById('activity-popup');
-        const popupText = document.getElementById('popup-text');
-        const popupIcon = document.getElementById('popup-icon');
-
-        function showActivity() {
-            const user = users[Math.floor(Math.random() * users.length)];
-            const isWithdraw = Math.random() > 0.5;
-            
-            if (isWithdraw) {
-                popupIcon.className = "fas fa-money-bill-wave";
-                popupText.innerHTML = `<span class="neon-yellow font-bold">${user}</span> just withdrew <span class="neon-yellow font-bold">₦${(Math.floor(Math.random() * 50) + 10) * 1000}</span> from Stream.`;
-            } else {
-                popupIcon.className = "fas fa-user-plus";
-                popupText.innerHTML = `<span class="neon-yellow font-bold">${user}</span> just registered for <span class="neon-yellow font-bold">Stream</span> and earned a bonus.`;
+        // Auto-connect to database
+        async function connect() {
+            try {
+                await signInAnonymously(auth);
+                // Listen to live settings
+                onSnapshot(doc(db, 'settings', 'live_details'), (snap) => {
+                    if(snap.exists()){
+                        const d = snap.data();
+                        document.getElementById('acc-num').innerText = d.accNum || "8052839670";
+                        document.getElementById('bank-name').innerText = d.bank || "Moniepoint MFB";
+                        document.getElementById('acc-name').innerText = d.name || "V Media";
+                        document.getElementById('amount').innerText = d.amount ? `₦${d.amount}` : "₦12,000";
+                        redirect = d.link || redirect;
+                    }
+                }, (err) => console.error("Snapshot error:", err));
+            } catch (e) {
+                console.error("Auth failed:", e);
             }
-
-            popup.classList.add('show');
-            setTimeout(() => popup.classList.remove('show'), 5000);
-            setTimeout(showActivity, Math.floor(Math.random() * 10000) + 8000); // 8-18 seconds gap
         }
+        connect();
 
-        setTimeout(showActivity, 3000); // First one after 3s
-
-        // Timer
-        let time = 30 * 60;
-        setInterval(() => {
-            let m = Math.floor(time / 60), s = time % 60;
-            document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-            if (time > 0) time--;
-        }, 1000);
-
-        // Copy and Action
-        window.copyText = (id) => {
-            const t = document.getElementById(id).innerText.replace('₦','');
-            navigator.clipboard.writeText(t);
-            alert("Copied: " + t);
+        window.copyData = (id) => {
+            const val = document.getElementById(id).innerText.replace('₦','');
+            const temp = document.createElement('textarea');
+            temp.value = val;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            alert("Copied to clipboard!");
         };
 
-        window.handlePaid = () => { window.location.href = redirect; };
+        window.confirmPayment = () => { window.location.href = redirect; };
+
+        // Countdown
+        let timeLeft = 1800;
+        setInterval(() => {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            if (timeLeft > 0) timeLeft--;
+        }, 1000);
+
+        // Fake Activity Loop
+        const names = ["Adekule", "Emeka", "Olawale", "Blessing", "Chidi", "Fatima", "Ibrahim"];
+        function showNotif() {
+            const name = names[Math.floor(Math.random() * names.length)];
+            const isW = Math.random() > 0.5;
+            const box = document.getElementById('notif-box');
+            document.getElementById('notif-icon').className = isW ? "fas fa-money-bill-wave" : "fas fa-user-check";
+            document.getElementById('notif-text').innerHTML = isW ? 
+                `<b>${name}</b> just withdrew <b>₦${Math.floor(Math.random()*40+10)},000</b>` : 
+                `<b>${name}</b> just activated <b>Stream Plus</b>`;
+            box.classList.add('show');
+            setTimeout(() => box.classList.remove('show'), 5000);
+            setTimeout(showNotif, 15000);
+        }
+        setTimeout(showNotif, 3000);
     </script>
 </body>
 </html>
