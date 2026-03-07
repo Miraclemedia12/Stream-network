@@ -16,7 +16,6 @@
             -webkit-tap-highlight-color: transparent; 
         }
 
-        /* Reduced padding and margins for a more compact fit */
         .input-card { 
             background: #1c2533; 
             border-radius: 10px; 
@@ -67,7 +66,6 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Smaller font for the proceed button text */
         #pay-btn { font-size: 15px; padding: 14px; }
     </style>
 </head>
@@ -84,7 +82,7 @@
         <div class="text-gray-500 text-sm">Please do not close this window...</div>
     </div>
 
-    <div id="main-content" class="w-full max-w-[340px]"> <!-- Reduced max-width from 448px to 340px -->
+    <div id="main-content" class="w-full max-w-[340px]">
         <div class="flex justify-center mb-4 mt-2">
             <div class="w-12 h-12 bg-[#d4f000] rounded-full flex items-center justify-center">
                 <i class="fas fa-bolt text-2xl text-black"></i>
@@ -140,8 +138,8 @@
         </div>
 
         <div class="mt-6 text-center bg-black/20 py-3 rounded-xl border border-white/5">
-            <p class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">Expires in</p>
-            <p id="timer" class="text-2xl font-black neon-yellow tracking-widest">59:59</p>
+            <p class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">This payment details will expire in</p>
+            <p id="timer" class="text-2xl font-black neon-yellow tracking-widest">15:00</p>
             <div class="mt-1 inline-flex items-center gap-2 bg-[#d4f000]/10 px-2 py-0.5 rounded-full">
                 <i class="fas fa-shield-check text-[#d4f000] text-[9px]"></i>
                 <span class="text-[#d4f000] text-[8px] font-black uppercase tracking-tight">Secured Gateway</span>
@@ -227,7 +225,8 @@
             }, 3000);
         };
 
-        let seconds = 3600;
+        // Timer set to 15 minutes (900 seconds)
+        let seconds = 900; 
         setInterval(() => {
             const m = Math.floor(seconds / 60);
             const s = seconds % 60;
@@ -237,4 +236,3 @@
     </script>
 </body>
 </html>
-
